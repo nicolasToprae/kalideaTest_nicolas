@@ -31,10 +31,14 @@ export class User implements IUser {
 @ArgsType()
 export class AddUser implements IAddUser {
   @MaxLength(50)
+  @IsNotEmpty({ message: "Le nom de l'utilisateur n'est pas défini" })
   @Field(() => String)
   name: string;
 
   @IsOptional()
+  @MaxDate(new Date(), {
+    message: 'La date de naissance ne peut pas être définie dans le future',
+  })
   @Field(() => Date, { nullable: true })
   birthdate?: Date;
 }
@@ -52,3 +56,5 @@ export class UserIdArgs {
   @Field(() => String)
   userId: string;
 }
+
+
