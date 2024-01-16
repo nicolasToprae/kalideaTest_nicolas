@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Equal, Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { IAddUser, IUser, UserId } from './user.interfaces';
+import { UserEmail } from '../email/email.types';
 
 @Injectable()
 export class UserService {
@@ -54,5 +55,21 @@ export class UserService {
    */
   get(id: UserId): Promise<IUser> {
     return this.userRepository.findOneBy({ id: Equal(id) });
+  }
+
+  /**
+   * Récupère un utilisateur par rapport à son mail
+   * @param userEmail Email de l'utilisateur à récupérer
+   * @returns L'utilisateur correspondant à l'identifiant ou undefined
+   */
+  getByEmail(userEmail: UserEmail): Promise<IUser> {
+    return this.userRepository.findOne({
+      where: {
+        emails: {
+          address: userEmail.address,
+        },
+      },
+      relations: ['emails'],
+    });
   }
 }
