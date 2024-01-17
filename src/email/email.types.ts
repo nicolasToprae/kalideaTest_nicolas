@@ -1,7 +1,7 @@
 import { ArgsType, Field, ID, InputType, ObjectType } from '@nestjs/graphql';
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsEmail, IsUUID, IsNotEmpty } from 'class-validator';
 import { Maybe } from 'graphql/jsutils/Maybe';
-import { IEmail, IEmailFilters } from './email.interfaces';
+import { IAddEmail, IEmail, IEmailFilters } from './email.interfaces';
 
 @ObjectType()
 export class UserEmail implements IEmail {
@@ -30,4 +30,29 @@ export class EmailFiltersArgs implements IEmailFilters {
   @IsOptional()
   @Field(() => StringFilters, { nullable: true })
   address?: Maybe<StringFilters>;
+}
+
+/**
+ * Type d'entrée GraphQL d'un mail à ajouter
+ */
+@InputType()
+@ArgsType()
+export class AddEmail implements IAddEmail {
+  @IsEmail()
+  @Field(() => String)
+  address: string;
+}
+
+/**
+ * Type Argument GraphQL pour les queries / mutations ayant uniquement
+ * besoin d'un identifiant email
+ */
+@ArgsType()
+export class EmailIdArgs {
+  @IsUUID('all', {
+    message: `L'identifiant de l'email doit être un UUID`,
+  })
+  @IsNotEmpty({ message: `L'identifiant de l'email doit être défini` })
+  @Field(() => String)
+  emailId: string;
 }

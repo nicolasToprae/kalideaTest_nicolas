@@ -9,12 +9,13 @@ import {
 } from '@nestjs/graphql';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EmailFiltersArgs, UserEmail } from '../email/email.types';
+import { AddEmail, EmailFiltersArgs, EmailIdArgs, UserEmail } from '../email/email.types';
 import { EmailEntity } from '../email/email.entity';
 import { UserId } from './user.interfaces';
 import { UserService } from './user.service';
 import { AddUser, User, UserIdArgs } from './user.types';
 import { EmailService } from '../email/email.service';
+import { EmailId } from '../email/email.interfaces';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -46,5 +47,22 @@ export class UserResolver {
     @Args() filters: EmailFiltersArgs,
   ): Promise<UserEmail[]> {
     return this._emailService.getEmails(filters, user);
+  }
+
+  @Mutation(() => ID)
+  addEmail(
+    @Args('email') email: AddEmail,
+    @Args() { userId }: UserIdArgs,
+  ): Promise<EmailId> {
+    return this._service.addEmail(email, userId);
+  }
+
+  @Mutation(() => ID)
+  updateEmail(
+    @Args('email') email: AddEmail,
+    @Args() { emailId }: EmailIdArgs,
+    @Args() { userId }: UserIdArgs,
+  ): Promise<EmailId> {
+    return this._service.updateEmail(email, emailId, userId);
   }
 }
