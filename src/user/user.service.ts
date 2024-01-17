@@ -10,7 +10,7 @@ import { IAddUser, IUser, UserId } from './user.interfaces';
 import { UserEmail } from '../email/email.types';
 import { EmailId, IAddEmail } from '../email/email.interfaces';
 import { EmailEntity } from '../email/email.entity';
-import { USER } from 'src/assets/enum';
+import { USER } from '../assets/enum';
 
 @Injectable()
 export class UserService {

@@ -8,6 +8,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { EmailEntity } from '../src/email/email.entity';
 
 const knownUserId = '0f9fcea9-f618-44e5-b182-0e3c83586f8b';
+const knownEmailId = 'f7176922-9ae8-4ac7-b1d9-d6b8ed75475b';
 
 const knownUser = {
   id: knownUserId,
@@ -17,7 +18,7 @@ const knownUser = {
   emails: [
     {
       userId: knownUserId,
-      id: 'f7176922-9ae8-4ac7-b1d9-d6b8ed75475b',
+      id: knownEmailId,
       address: 'test1@upcse-integration.coop',
     },
     {
@@ -209,6 +210,58 @@ describe('Tests e2e', () => {
             ).toContain(
               'La date de naissance ne peut pas être définie dans le future',
             );
+          });
+      });
+    });
+    describe('[Mutation] addEmail', () => {
+      it(`[a1] Devrait ajouter un email à un utilisateur`, () => {
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {addEmail(userId:"${knownUserId}", email:{ address : "test1@mail.fr"})}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.data.addEmail).toBeDefined();
+          });
+      });
+      it(`[a2] Devrait retourner une erreur si l'user n'existe pas`, () => {
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {addEmail(userId:"68ffb57b-0dd2-4ee0-9c38-d7a3c64e0e6b", email:{ address : "test1@mail.fr"})}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.errors?.[0]?.extensions?.status).toBe(404);
+            expect(res.body.errors?.[0]?.message).toBe(
+              `L'utilisateur n'a pas été trouvé ou à été desactivé`,
+            );
+          });
+      });
+    });
+    describe('[Mutation] updateEmail', () => {
+      it(`[b1] Devrait modifier un email d'un utilisateur`, () => {
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {updateEmail(userId:"${knownUserId}",emailId: "${knownEmailId}", email:{ address : "test1@mail.fr"})}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.data.updateEmail).toBeDefined();
+          });
+      });
+      it(`[b2] Devrait retourner un erreur si le mail n'existe pas`, () => {
+        return request(app.getHttpServer())
+          .post('/graphql')
+          .send({
+            query: `mutation {updateEmail(userId:"${knownUserId}",emailId: "68ffb57b-0dd2-4ee0-9c38-d7a3c64e0e6b", email:{ address : "test1@mail.fr"})}`,
+          })
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.errors?.[0]?.extensions?.status).toBe(404);
+            expect(res.body.errors?.[0]?.message).toBe(`L'email n'existe pas`);
           });
       });
     });
